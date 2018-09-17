@@ -34,7 +34,8 @@ for PAGE in $(seq -f "%05g" 1 $NUM); do
     echo "Processing page $PAGE"
     pdftk "$PDF" cat $PAGE output temp.pdf
     echo "Split PDF"
-    convert -density 300 temp.pdf -depth 8 -fill white -draw 'rectangle 10,10 20,20' -background white -flatten +matte temp.tiff
+    convert -density 300 temp.pdf -depth 8 -fill white -draw 'rectangle 10,10 20,20' -background white -flatten +matte -alpha Off temp.tiff
+    #gs -dSAFER -sDEVICE=png16m -dINTERPOLATE -dNumRenderingThreads=8 -dFirstPage=1 -dLastPage=1 -r300 -o ./output\_image.png -c 30000000 setvmthreshold -f my\_pdf.pdf
     echo "Converted to TIFF"
     tesseract -l eng temp.tiff tmp.pdf_"${PAGE}" pdf quiet
     rm -f temp.tiff temp.pdf
