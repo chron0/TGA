@@ -32,19 +32,19 @@ cd ./$new_folder
 
 for PAGE in $(seq -f "%05g" 1 $NUM); do
     echo "Processing page $PAGE"
-    pdftk "$PDF" cat $PAGE output temp.pdf
-    echo "Split PDF"
-    convert -density 300 temp.pdf -depth 8 -fill white -draw 'rectangle 10,10 20,20' -background white -flatten +matte -alpha Off temp.tiff
-    #gs -dSAFER -sDEVICE=png16m -dINTERPOLATE -dNumRenderingThreads=8 -dFirstPage=1 -dLastPage=1 -r300 -o ./output\_image.png -c 30000000 setvmthreshold -f my\_pdf.pdf
-    echo "Converted to TIFF"
-    tesseract -l eng temp.tiff tmp.pdf_"${PAGE}" pdf quiet
-    rm -f temp.tiff temp.pdf
-    echo "Temp files removed"
+    #pdftk "$PDF" cat $PAGE output temp.pdf
+    echo "+ Convert to PNG..."
+    #convert -density 300 temp.pdf -depth 8 -fill white -draw 'rectangle 10,10 20,20' -background white -flatten +matte -alpha Off temp.tiff
+    gs -q -dSAFER -sDEVICE=png16m -dINTERPOLATE -dNumRenderingThreads=8 -dFirstPage=$PAGE -dLastPage=$PAGE -r300 -o temp.png -c 64000000 setvmthreshold -f "${PDF}"
+    echo "+ Running OCR..."
+    tesseract --oem 2 -l eng temp.png page_"${PAGE}" -c tessedit_char_blacklist=ﬁﬂ quiet 
+    rm -f temp.png 
+    #echo "Temp files removed"
 done
 
 # Cleanup
-pdftk tmp.pdf_*.pdf output "$folder".pdf  && rm -f tmp.pdf_*.pdf
-cp "$folder".pdf ../
-cd ../
-rm -rf "$new_folder"
-echo -e "\n\033[1m\e[32mOutput written succesfully\e[0m\033[0m\n"
+#pdftk tmp.pdf_*.pdf output "$folder".pdf  && rm -f tmp.pdf_*.pdf
+#cp "$folder".pdf ../
+#cd ../
+#rm -rf "$new_folder"
+#echo -e "\n\033[1m\e[32mOutput written succesfully\e[0m\033[0m\n"
